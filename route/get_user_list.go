@@ -1,6 +1,8 @@
 package route
 
 import (
+	"fmt"
+
 	"RelationshipMatch/repository"
 
 	log "github.com/Sirupsen/logrus"
@@ -28,7 +30,15 @@ import (
 func (api *RestApi) GetUsers(c *gin.Context) {
 
 	// TODO: add validation
-	users := repository.GetUsers(api.PG)
+	users, err := repository.GetUsers(api.PG)
+
+	if err != nil {
+		result := fmt.Sprintf("Get user error: %s.", err)
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+		return
+	}
 
 	c.JSON(200, gin.H{
 		"result": users,

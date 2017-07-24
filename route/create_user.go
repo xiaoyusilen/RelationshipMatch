@@ -1,6 +1,8 @@
 package route
 
 import (
+	"fmt"
+
 	"RelationshipMatch/model"
 	"RelationshipMatch/repository"
 
@@ -46,7 +48,15 @@ func (api *RestApi) CreateUser(c *gin.Context) {
 	}
 
 	// Validate user is existed or not
-	isExist := repository.IsUserExist(api.PG, user.Id)
+	isExist, err := repository.IsUserExist(api.PG, user.Id)
+
+	if err != nil {
+		result := fmt.Sprintf("Validate user error: %s.", err)
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+		return
+	}
 
 	if isExist {
 		c.JSON(200, gin.H{
@@ -58,8 +68,9 @@ func (api *RestApi) CreateUser(c *gin.Context) {
 	err = repository.CreateUser(api.PG, user)
 
 	if err != nil {
+		result := fmt.Sprintf("Create user error: %s.", err)
 		c.JSON(200, gin.H{
-			"result": "Create user failed.",
+			"result": result,
 		})
 		return
 	}

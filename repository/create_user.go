@@ -12,7 +12,7 @@ const (
 	UserIsExistSQL = `select * from users where id=?`
 )
 
-func IsUserExist(pg *pg.DB, user_id string) bool {
+func IsUserExist(pg *pg.DB, user_id string) (bool, error) {
 	var u model.User
 
 	res, err := pg.Query(&u, UserIsExistSQL, user_id)
@@ -20,14 +20,14 @@ func IsUserExist(pg *pg.DB, user_id string) bool {
 	if err != nil {
 		log.Errorf("Find user error: %s.", err)
 		// If find user error, we think this user is existed.
-		return true
+		return true, err
 	}
 
 	if res.RowsReturned() > 0 {
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 func CreateUser(pg *pg.DB, user *model.User) error {

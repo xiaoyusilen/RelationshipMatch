@@ -11,13 +11,14 @@ const (
 	GetUsersSQL = `select * from users`
 )
 
-func GetUsers(pg *pg.DB) (users []model.User) {
+func GetUsers(pg *pg.DB) (users []model.User, err error) {
 
-	_, err := pg.Query(&users, GetUsersSQL)
+	_, err = pg.Query(&users, GetUsersSQL)
 
 	if err != nil {
 		log.Errorf("Get users error: %s.", err)
+		return users, err
 	}
 
-	return users
+	return users, nil
 }

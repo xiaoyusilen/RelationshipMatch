@@ -52,7 +52,14 @@ func (api *RestApi) CreateUserRelationship(c *gin.Context) {
 	}
 
 	// validate user_id and other_user_id
-	is_user_exist := repository.IsUserExist(api.PG, user_id)
+	is_user_exist, err := repository.IsUserExist(api.PG, user_id)
+	if err != nil {
+		result := fmt.Sprintf("Validate user error: %s.", err)
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+		return
+	}
 	if !is_user_exist {
 		result := fmt.Sprintf("User id %s is not exist.", user_id)
 		c.JSON(200, gin.H{
@@ -61,7 +68,14 @@ func (api *RestApi) CreateUserRelationship(c *gin.Context) {
 		return
 	}
 
-	is_other_user_id_exist := repository.IsUserExist(api.PG, other_user_id)
+	is_other_user_id_exist, err := repository.IsUserExist(api.PG, other_user_id)
+	if err != nil {
+		result := fmt.Sprintf("Validate user error: %s.", err)
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+		return
+	}
 	if !is_other_user_id_exist {
 		result := fmt.Sprintf("User id %s is not exist.", other_user_id)
 		c.JSON(200, gin.H{
@@ -78,7 +92,15 @@ func (api *RestApi) CreateUserRelationship(c *gin.Context) {
 	}
 
 	// add relationship to database
-	res := repository.CreateUserRelationship(api.PG, relationship)
+	res, err := repository.CreateUserRelationship(api.PG, relationship)
+
+	if err != nil {
+		result := fmt.Sprintf("Create user relationship error: %s.", err)
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+		return
+	}
 
 	if !res {
 		c.JSON(200, gin.H{

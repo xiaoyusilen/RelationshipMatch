@@ -13,16 +13,16 @@ const (
 	UpdateRelationshipSQL = `update relationship set status=? where user_id=? and other_id=?`
 )
 
-func CreateUserRelationship(pg *pg.DB, relationship *model.Relationship) bool {
+func CreateUserRelationship(pg *pg.DB, relationship *model.Relationship) (bool, error) {
 
 	// if state is disliked, add to database and need no query
 	if relationship.State == "disliked" {
 		_, err := pg.Query(&relationship, InsertRelationshipSQL, relationship.UserId, relationship.OtherId, relationship.State, relationship.Type)
 		if err != nil {
 			log.Errorf("Insert relationship error: %s.", err)
-			return false
+			return false, err
 		}
-		return true
+		return true, nil
 	}
 
 	// Get other_user_id's state to user_id
@@ -30,7 +30,7 @@ func CreateUserRelationship(pg *pg.DB, relationship *model.Relationship) bool {
 	res, err := pg.Query(&state_from, GetRelationshipSQL, relationship.OtherId, relationship.UserId)
 	if err != nil {
 		log.Errorf("Get relationship error: %s.", err)
-		return false
+		return false, err
 	}
 
 	// if return rows > 0 means has relationship.
@@ -39,13 +39,14 @@ func CreateUserRelationship(pg *pg.DB, relationship *model.Relationship) bool {
 			_, err = pg.Query(&relationship, InsertRelationshipSQL, relationship.UserId, relationship.OtherId, "matched", relationship.Type)
 			if err != nil {
 				log.Errorf("Insert relationship error: %s.", err)
-				return false
+				return false, err
 			}
 			_, err = pg.Query(&relationship, UpdateRelationshipSQL, "matched", relationship.OtherId, relationship.UserId)
 			if err != nil {
 				log.Errorf("Update relationship error: %s.", err)
+				return false, err
 			}
-			return true
+			return true, nil
 		}
 	}
 
@@ -53,7 +54,7 @@ func CreateUserRelationship(pg *pg.DB, relationship *model.Relationship) bool {
 	_, err = pg.Query(&relationship, InsertRelationshipSQL, relationship.UserId, relationship.OtherId, relationship.State, relationship.Type)
 	if err != nil {
 		log.Errorf("Insert relationship error: %s.", err)
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
