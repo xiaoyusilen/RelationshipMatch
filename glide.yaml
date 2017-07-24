@@ -1,0 +1,10 @@
+package: RelationshipMatch
+import:
+- package: github.com/Sirupsen/logrus
+  version: ^1.0.2
+- package: github.com/alecthomas/kingpin
+  version: ^2.2.4
+- package: github.com/gin-gonic/gin
+  version: ^1.2.0
+- package: github.com/go-pg/pg
+  version: ^6.4.8
